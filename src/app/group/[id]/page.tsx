@@ -4,6 +4,12 @@ import { getMobileOperatingSystem } from '@/utils/getMobileOperatingSystem';
 import { peekTime, tickTime } from '@/utils/timeCounter';
 import { useEffect, useRef, useState } from 'react';
 
+type Props = {
+  params: {
+    id: string;
+  };
+};
+
 let shaking: { x: number; y: number; z: number } | undefined;
 
 function normalize(x: number, y: number, z: number) {
@@ -11,7 +17,7 @@ function normalize(x: number, y: number, z: number) {
   return [x / len, y / len, z / len];
 }
 
-const Group = () => {
+const Group = ({ params }: Props) => {
   const [motion1, setMotion1] = useState({
     x: 0,
     y: 0,
@@ -45,7 +51,15 @@ const Group = () => {
           y: motion1.y,
           z: motion1.z,
         };
-        setCount(count + 1);
+
+        const updateScore = async () => {
+          await fetch(`${process.env.NEXT_PUBLIC_API_URL}/${params.id}`, {
+            method: 'POST',
+          });
+        };
+
+        setCount((prev) => prev + 1);
+        updateScore();
         tickTime();
         setTime(Math.round(peekTime()));
       }
@@ -59,7 +73,7 @@ const Group = () => {
       y: motion1.y,
       z: motion1.z,
     };
-  }, [motion1, count]);
+  }, [motion1, count, params.id]);
 
   useEffect(() => {
     const interval = setInterval(() => {
